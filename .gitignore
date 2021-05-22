@@ -1,0 +1,5 @@
+AFOROS/
+.vscode
+.ipynb_checkpoints
+__pycache__
+*.xlsx
