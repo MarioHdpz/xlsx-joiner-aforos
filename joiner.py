@@ -1,5 +1,6 @@
 """Module to join xlsx files - Traffic volume and speed """
 
+from concurrent.futures import process
 import datetime
 import multiprocessing
 import os
@@ -7,9 +8,10 @@ import re
 
 import pandas
 
+current_path = os.getcwd()
+
 def get_xlsx_files(directory):
     files_extension = "xlsx"
-    current_path = os.getcwd()
     xlsx_files = list()
     year_dirs = os.listdir(f"{current_path}/{directory_name}")
     year_dirs.sort()
@@ -85,17 +87,16 @@ def get_dataframe(filename, processed_dataframes):
         df = get_volume_and_speed_df(filename)
         processed_dataframes.append(df)
     except Exception as error:
-        print(f"Error in file: {filename}")
+        print(f"Error in file {filename}: {error}")
 
 
 if __name__ == "__main__":
     directory_name = "AFOROS"
 
     xlsx_files = get_xlsx_files(directory_name)
-    xlsx_files = xlsx_files[:2]
     
     with multiprocessing.Manager() as manager:
-        processed_dataframes = manager.list(range(len(xlsx_files)))
+        processed_dataframes = manager.list()
         jobs = []
         for xlsx_file in xlsx_files:
             p = multiprocessing.Process(target=get_dataframe, args=(xlsx_file, processed_dataframes))
@@ -107,7 +108,7 @@ if __name__ == "__main__":
 
         integrated_df = pandas.DataFrame()
         for dataframe in processed_dataframes:
-            integrated_df.append(dataframe)
+            integrated_df = integrated_df.append(dataframe)
 
-    print(integrated_df)
+    integrated_df.to_csv(f"{current_path}/output/speed_volume.csv")
 

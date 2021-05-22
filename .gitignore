@@ -3,3 +3,4 @@ AFOROS/
 .ipynb_checkpoints
 __pycache__
 *.xlsx
+output
